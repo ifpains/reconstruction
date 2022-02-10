@@ -69,7 +69,7 @@ def ransac_polyfit(x,y,order,t,n=0.7,k=100,f=0.8):
 # k - Number of tries 
 # f - Accuracy of the RANSAC to consider the fit a good one
 
-def ddbscaninner(data, is_core, neighborhoods, neighborhoods2, labels, dir_radius, dir_min_accuracy, dir_minsamples, dir_thickness, time_threshold, max_attempts, isolation_radius, expand_noncore, debug=True):
+def ddbscaninner(data, is_core, neighborhoods, neighborhoods2, labels, dir_radius, dir_min_accuracy, dir_minsamples, dir_thickness, time_threshold, max_attempts, isolation_radius, expand_noncore, debug=False):
     #Definitions
     #Beginning of the algorithm - DBSCAN check part
     label_num = 0
@@ -202,11 +202,7 @@ def ddbscaninner(data, is_core, neighborhoods, neighborhoods2, labels, dir_radiu
             while True:
                 if labels[i] == -1:
                     labels[i] = label_num
-                    if expand_noncore:
-                        core_flag = 1
-                    else:
-                        core_flag = is_core[j]
-                    if core_flag:
+                    if is_core[i]:
                         neighb = neighborhoods[i]
                         for i in range(neighb.shape[0]):
                             v = neighb[i]

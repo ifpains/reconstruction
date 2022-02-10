@@ -89,6 +89,7 @@ class SnakesFactory:
                 ev_number = re.sub('ev', '', items[2])
                 np.save('../Cython-test/Events/' + items[1] + '/data' + ev_number, X)
                 np.save('../Cython-test/Events/' + items[1] + '/sample' + ev_number, sample_weight)
+                np.save('../Cython-test/Events/' + items[1] + '/data_imgfr_'+ ev_number, image_fr_vignetted)
             
         else:
             X = points.copy()
