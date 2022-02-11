@@ -10,7 +10,7 @@ import utilities
 utilities = utilities.utils()
 
 class Cluster:
-    def __init__(self,hits,rebin,img_fr,img_fr_zs,geometry,debug=False):
+    def __init__(self,hits,rebin,img_fr,img_fr_zs,geometry,debug=False,fullinfo=False,clID=0):
         self.hits = hits
         self.rebin = rebin
         self.debug = debug
@@ -19,6 +19,42 @@ class Cluster:
             self.hits_fr,self.hits_fr_zs = self.fullResHits(img_fr,img_fr_zs)
         else:
             print("WARNING! Cluster created without underlying image... Are you using it standalone?")
+
+        if fullinfo:			#savin he pixel for the scfullinfo 
+
+            self.nclu = clID
+            self.ID=[]
+            self.IDall=[]
+            if self.integral()>0 and self.hits_fr_zs != [] and self.size()<1000000:		#tries to avoid to save cluster with zero integral or too big (like with afterglow of pixels)
+                  self.nintpixels = self.sizeActive()
+                  self.nallintpixels = self.size()
+                  for k in range(self.nintpixels):
+                      self.ID.append(clID)
+                  for k in range(self.nallintpixels):
+                      self.IDall.append(clID)
+                  self.xpixelcoord= self.hits_fr_zs[:,0]
+                  self.ypixelcoord= self.hits_fr_zs[:,1]
+                  self.zpixel= self.hits_fr_zs[:,2]
+                  self.xallpixelcoord= self.hits_fr[:,0]
+                  self.yallpixelcoord= self.hits_fr[:,1]
+                  self.zallpixel= self.hits_fr[:,2]
+            else:								#clusters with ID =-1 can be avoided during analysis of the pixels
+                  self.ID.append(-1)
+                  self.nintpixels = 1
+                  self.IDall.append(-1)
+                  self.nallintpixels = 1
+                  if self.hits_fr_zs != []:
+                      self.xpixelcoord= self.hits_fr_zs[int(self.sizeActive()/2):int(self.sizeActive()/2)+1,0]
+                      self.ypixelcoord= self.hits_fr_zs[int(self.sizeActive()/2):int(self.sizeActive()/2)+1,1]
+                      self.zpixel= self.hits_fr_zs[int(self.sizeActive()/2):int(self.sizeActive()/2)+1,2]
+                  else:
+                      self.xpixelcoord= self.hits_fr[int(self.size()/2):int(self.size()/2)+1,0]
+                      self.ypixelcoord= self.hits_fr[int(self.size()/2):int(self.size()/2)+1,1]
+                      self.zpixel= self.hits_fr[int(self.size()/2):int(self.size()/2)+1,2]
+ 
+                  self.xallpixelcoord= self.hits_fr[int(self.size()/2):int(self.size()/2)+1,0]
+                  self.yallpixelcoord= self.hits_fr[int(self.size()/2):int(self.size()/2)+1,1]   
+                  self.zallpixel= self.hits_fr[int(self.size()/2):int(self.size()/2)+1,2]
         self.mean_point = np.array([np.mean(self.x),np.mean(self.y)])
         self.EVs,self.theta = self.eigenvectors()
         self.widths = {}
@@ -76,7 +112,10 @@ class Cluster:
         if hasattr(self,'iteration'):
             return self.iteration
         else: return 0
-        
+
+    def rms(self):
+        return np.std(np.array([z for (x,y,z) in self.hits_fr]))
+            
     def getXmax(self):
         if hasattr(self,'xmax'):
             return self.xmax
@@ -179,6 +218,7 @@ class Cluster:
             rSigma = -999
 
         ret = {'amp': rInt, 'mean': rMean, 'sigma': rSigma, 'chi2': chi2, 'status': status}
+        del f
         return ret
         
     def calcProfiles(self,name='prof',plot=None):
@@ -213,6 +253,7 @@ class Cluster:
         else: latprof = 0
         
         cluth2d = ROOT.TH2D('cluth2d','',int(length)+2,0,int(length)+2, int(width)+2,0,int(width)+2)
+        cluth2d.SetDirectory(0)
         for h in rot_hits:
             x,y,z=h[0],h[1],h[2]
             if longprof: longprof.Fill(x-rxmin,z)
@@ -225,6 +266,7 @@ class Cluster:
         fitResults = {}
         for ip,p in enumerate(profiles):
             if p:
+                #print ("profile entries = ",p.GetEntries())
                 p.GetXaxis().SetTitle('X_{%s} (mm)' % titles[ip])
                 p.GetYaxis().SetTitle('Number of photons per slice')
                 self.applyProfileStyle(p)
@@ -246,12 +288,20 @@ class Cluster:
         # inclination wrt the vertical
         self.shapes['theta'] = self.theta
         
-        self.shapes['xmean'] = np.average(np.array(self.hits_fr[:,0]),weights=np.array([max(0,z) for z in self.hits_fr[:,2]]) )
-        self.shapes['ymean'] = np.average(np.array(self.hits_fr[:,1]),weights=np.array([max(0,z) for z in self.hits_fr[:,2]]) )
-        self.shapes['xmin'] = np.min(np.array(self.hits_fr[:,0]))
-        self.shapes['ymin'] = np.min(np.array(self.hits_fr[:,1]))
-        self.shapes['xmax'] = np.max(np.array(self.hits_fr[:,0]))
-        self.shapes['ymax'] = np.max(np.array(self.hits_fr[:,1]))
+        if self.integral()<10:
+              self.shapes['xmean'] = 0
+              self.shapes['ymean'] = 0
+              self.shapes['xmin'] = 0
+              self.shapes['ymin'] = 0
+              self.shapes['xmax'] = 0
+              self.shapes['ymax'] = 0
+        else:
+              self.shapes['xmean'] = np.average(np.array(self.hits_fr[:,0]),weights=np.array([max(0,z) for z in self.hits_fr[:,2]]) )
+              self.shapes['ymean'] = np.average(np.array(self.hits_fr[:,1]),weights=np.array([max(0,z) for z in self.hits_fr[:,2]]) )
+              self.shapes['xmin'] = np.min(np.array(self.hits_fr[:,0]))
+              self.shapes['ymin'] = np.min(np.array(self.hits_fr[:,1]))
+              self.shapes['xmax'] = np.max(np.array(self.hits_fr[:,0]))
+              self.shapes['ymax'] = np.max(np.array(self.hits_fr[:,1]))
         for direction in titles:
             self.shapes['{direction}gaussamp'.format(direction=direction[0])] = (fitResults[direction])['amp']
             self.shapes['{direction}gaussmean'.format(direction=direction[0])] = (fitResults[direction])['mean']
@@ -262,6 +312,8 @@ class Cluster:
         # get the peaks inside the profile
         for direction in ['lat','long']:
             self.clusterShapes(direction,plot)
+
+        del cluth2d, latprof, longprof
         
     def getProfile(self,name='long'):
         if len(self.profiles)==0:
