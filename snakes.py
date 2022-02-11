@@ -20,6 +20,7 @@ from cluster.ddbscan_ import DDBSCAN
 from energyCalibrator import EnergyCalibrator
 
 import debug_code.tools_lib as tl
+from cython_cygno import nred_cython
 
 class SnakesFactory:
     def __init__(self,img,img_fr,img_fr_zs,img_ori,vignette,name,options,geometry):
@@ -67,7 +68,8 @@ class SnakesFactory:
         filtimage = median_filter(self.image_fr_zs, size=2)
         edges = self.ct.arrrebin(filtimage,self.rebin)
         edcopy = edges.copy()
-        edcopyTight = tl.noisereductor(edcopy,rescale,self.options.min_neighbors_average)
+        #edcopyTight = tl.noisereductor(edcopy,rescale,self.options.min_neighbors_average)
+        edcopyTight = nred_cython(edcopy, rescale, self.options.min_neighbors_average)
         
         # make the clustering with DBSCAN algo
         # this kills all macrobins with N photons < 1
