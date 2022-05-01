@@ -89,9 +89,8 @@ class SnakesFactory:
                 import re
                 items = re.split('_+', self.name)
                 ev_number = re.sub('ev', '', items[2])
-                np.save('../Cython-test/Events/' + items[1] + '/data' + ev_number, X)
-                np.save('../Cython-test/Events/' + items[1] + '/sample' + ev_number, sample_weight)
-                np.save('../Cython-test/Events/' + items[1] + '/data_imgfr_'+ ev_number, image_fr_vignetted)
+                #np.save('../Cython-test/Events/' + items[1] + '/data' + ev_number, X)
+                #np.save('../Cython-test/Events/' + items[1] + '/sample' + ev_number, sample_weight)
             
         else:
             X = points.copy()
@@ -145,20 +144,6 @@ class SnakesFactory:
                     plt.gcf().clear()
                     plt.close('all')
                 
-                fig = plt.figure(figsize=(self.options.figsizeX, self.options.figsizeY))
-                plt.imshow(self.image,cmap=self.options.cmapcolor, vmin=vmin,vmax=vmax,origin='lower' )
-                plt.title("Clusters found DDBSCAN")             
-                for j in range(0,np.shape(clu)[0]):
-                    ybox = clu[j][:,0]
-                    xbox = clu[j][:,1]
-                    if (len(ybox) > 0) and (len(xbox) > 0):
-                        contours = tl.findedges(ybox,xbox,self.geometry.npixx,self.rebin)
-                        for n, contour in enumerate(contours):
-                            plt.plot(contour[:, 1],contour[:, 0], '-r',linewidth=2.5)
-     
-     
-                for ext in ['png','pdf']:
-                    plt.savefig('{pdir}/{name}_{esp}_{tip}.{ext}'.format(pdir=outname, name=self.name, esp='1st', ext=ext, tip=self.options.tip), bbox_inches='tight', pad_inches=0)
                     
 
         # - - - - - - - - - - - - - -
@@ -262,7 +247,24 @@ class SnakesFactory:
                 #plt.gcf().clear()
                 #plt.close('all')
                 
+                new_plot = True
+                if new_plot:
+                    fig = plt.figure(figsize=(self.options.figsizeX, self.options.figsizeY))
+                    plt.imshow(self.image,cmap=self.options.cmapcolor, vmin=vmin,vmax=vmax,origin='lower' )
+                    plt.title("Clusters found DDBSCAN")
+                    for j in range(0,np.shape(clu)[0]):
+                        ybox = clu[j][:,0]
+                        xbox = clu[j][:,1]
+                        if (len(ybox) > 0) and (len(xbox) > 0):
+                            contours = tl.findedges(ybox,xbox,self.geometry.npixx,self.rebin)
+                            for n, contour in enumerate(contours):
+                                plt.plot(contour[:, 1],contour[:, 0], '-r',linewidth=2.5)
 
+
+                    for ext in ['png']:
+                        plt.savefig('{pdir}/{name}_{esp}_{tip}.{ext}'.format(pdir=outname, name=self.name, esp='1st', ext=ext, tip=self.options.tip), bbox_inches='tight', pad_inches=0)
+                
+                
                 plt.gcf().clear()
                 plt.close('all')
 
