@@ -423,7 +423,13 @@ if __name__ == '__main__':
     
     #inputf = inputFile(options.run, options.dir, options.daq)
 
-    USER = os.environ['USER']
+    #USER = os.environ['USER']
+    try:
+        USER = os.environ['USER']
+        flag_env = 0
+    except:
+        flag_env = 1
+        USER = os.environ['JUPYTERHUB_USER']
     #tmpdir = '/mnt/ssdcache/' if os.path.exists('/mnt/ssdcache/') else '/tmp/'
     # it seems that ssdcache it is only mounted on cygno-login, not in the batch queues (neither in cygno-custom)
     tmpdir = '/tmp/'
@@ -433,7 +439,7 @@ if __name__ == '__main__':
         os.system('mkdir -p {tmpdir}/'.format(tmpdir=tmpdir))
     else:
         os.system('mkdir -p {tmpdir}/{user}'.format(tmpdir=tmpdir,user=USER))
-        tmpdir = '{tmpdir}/{user}'.format(tmpdir=tmpdir,user=USER)
+        tmpdir = '{tmpdir}{user}'.format(tmpdir=tmpdir,user=USER)
     if sw.checkfiletmp(int(options.run),tmpdir):
         options.tmpname = "%s/histograms_Run%05d.root" % (tmpdir,int(options.run))
         print(options.tmpname)
