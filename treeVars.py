@@ -96,6 +96,7 @@ class AutoFillTreeProducer:
         self.outTree.branch('{name}_lgausssigma'.format(name=name),  'F', lenVar=sizeStr, title="standard deviation of the Gaussian longitudinal profile")
         self.outTree.branch('{name}_lchi2'.format(name=name),        'F', lenVar=sizeStr, title="chi-squared of the Gaussian fit to the longitudinal profile")
         self.outTree.branch('{name}_lstatus'.format(name=name),      'F', lenVar=sizeStr, title="status of the Gaussian fit to the longitudinal profile")
+        self.outTree.branch('{name}_polycluster'.format(name=name),      'F', lenVar=sizeStr, title="fully reconstructed polynomial cluster index (if -1 this is not a subcluster)")
 
     def addCosmicKillerVariables(self,name='track'):
         self.saveKillerVars = True
@@ -186,3 +187,4 @@ class AutoFillTreeProducer:
         self.outTree.fillBranch('{name}_lgausssigma'.format(name=name), [cl.shapes['lgausssigma'] for cl in clusters])
         self.outTree.fillBranch('{name}_lchi2'.format(name=name),       [cl.shapes['lchi2'] for cl in clusters]) 
         self.outTree.fillBranch('{name}_lstatus'.format(name=name),     [cl.shapes['lstatus'] for cl in clusters])
+        self.outTree.fillBranch('{name}_polycluster'.format(name=name),     [cl.getPolycluster() for cl in clusters])

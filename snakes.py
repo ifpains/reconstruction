@@ -4,6 +4,7 @@ import numpy as np
 import ROOT,math,os,sys,time
 import pickle
 
+from scipy import stats
 from scipy.ndimage import gaussian_filter, median_filter
 from skimage import img_as_float
 from skimage.morphology import reconstruction
@@ -178,9 +179,56 @@ class SnakesFactory:
 
         t_DBSCAN = t2-t1
         
-        # Black removed and is used for noise instead.
-        unique_labels = set(ddb.labels_[:,0])
+        t0_sub = time.perf_counter()
+        #Start subcluster analysis preparation
+        np.save("/jupyter-workspace/private/emanuele_task/ddb_labels.npy", ddb.labels_)
+        np.save("/jupyter-workspace/private/emanuele_task/data.npy", X)
+        np.save("/jupyter-workspace/private/emanuele_task/sample.npy", sample_weight)
+        
+        labels = np.copy(ddb.labels_)
+        max_label = np.max(labels[:,0])
+        
+        poly_pieces = True
 
+        if poly_pieces and labels[:,1].any():
+            poly_indexes = np.where(labels[:,1])[0]
+            X_poly = np.copy(X[poly_indexes])
+            sample_poly = np.copy(sample_weight[poly_indexes])
+
+            filePar = open('modules_config/clustering.txt','r')
+            params = eval(filePar.read())
+            seed_eps = params['dbscan_eps']
+            seed_mpts = params['dbscan_minsamples']
+            seed_metric = params['metric']
+            seed_mp = params['metric_params']
+            seed_algo = params['algorithm']
+            seed_ls = params['leaf_size']
+            seed_p = params['p']
+            seed_njobs = params['n_jobs']
+
+            db_poly = DBSCAN(eps=seed_eps,min_samples=seed_mpts, metric=seed_metric, metric_params=seed_mp, algorithm=seed_algo, 
+                             leaf_size=seed_ls, p=seed_p, n_jobs=seed_njobs).fit(X_poly, sample_weight = sample_poly)
+
+            reclustering_labels = np.copy(db_poly.labels_)
+            poly_ref = [labels[poly_indexes,0][reclustering_labels == i] for i in np.unique(reclustering_labels) if i != -1]
+            poly_pointer = [stats.mode(ref)[0][0] for ref in poly_ref]
+
+            reclustering_labels[np.where(reclustering_labels!=-1)] += max_label + 1
+
+            X_extend = np.concatenate((X,X_poly))
+            labels_extend = np.concatenate((labels[:,0],reclustering_labels))
+
+        else:
+            X_extend = np.copy(X)
+            labels_extend = np.copy(labels[:,0])
+        
+        #End subcluster analysis preparation
+        t1_sub = time.perf_counter()
+        t_subclustering = t1_sub - t0_sub
+        
+        # Black removed and is used for noise instead.
+        #unique_labels = set(ddb.labels_[:,0])
+        unique_labels = set(labels_extend)
         # Number of polynomial clusters in labels, ignoring noise if present.
         n_superclusters = len(unique_labels) - (1 if -1 in ddb.labels_[:,0] else 0)
 
@@ -188,9 +236,11 @@ class SnakesFactory:
             if k == -1:
                 break # noise: the unclustered
 
-            class_member_mask = (ddb.labels_[:,0] == k)
+            #class_member_mask = (ddb.labels_[:,0] == k)
             #class_member_mask = (ddb.labels_ == k)
-            xy = np.unique(X[class_member_mask],axis=0)
+            #xy = np.unique(X[class_member_mask],axis=0)
+            class_member_mask = (labels_extend == k)
+            xy = np.unique(X_extend[class_member_mask],axis=0)
             x = xy[:, 0]; y = xy[:, 1]
             
             
@@ -199,6 +249,11 @@ class SnakesFactory:
                 cl = Cluster(xy,self.rebin,image_fr_vignetted,image_fr_zs_vignetted,self.options.geometry,debug=False,fullinfo=self.options.scfullinfo,clID=k)
                 cl.iteration = 0
                 cl.pearson = 999#p_value
+                if k <= max_label:
+                    cl.polycluster = -1
+                else:
+                    cl.polycluster = poly_pointer[k - max_label - 1]
+                
                 superclusters.append(cl)
                 
         t2 = time.perf_counter()
@@ -407,7 +462,6 @@ class SnakesProducer:
         # Doesn't work on MacOS with multithreading for some reason... 
         if self.algo=='DBSCAN':
             snakes, lp_len, t_medianfilter, t_noisered, t_DBSCAN = snfac.getClusters(plot=self.plotpy)
-
             # supercluster energy calibration for the saturation effect
             fileCalPar = open('modules_config/energyCalibrator.txt','r')
             params = eval(fileCalPar.read())
@@ -455,7 +509,7 @@ class SnakesProducer:
         # snfac.calcProfiles(snakes) # this is for BTF
         
         # sort snakes by light integral
-        snakes = sorted(snakes, key = lambda x: x.integral(), reverse=True)
+        #snakes = sorted(snakes, key = lambda x: x.integral(), reverse=True)
         # and reject discharges (round)
         #snakes = [x for x in snakes if x.qualityLevel()>=self.snakeQualityLevel]
         

@@ -441,3 +441,8 @@ class Cluster:
         # minimal length (1 cm for neutrons is good)
         if self.shapes['long_width']>10: kGood += 1
         return kGood
+
+    def getPolycluster(self):
+        if hasattr(self,'polycluster'):
+            return self.polycluster
+        else: return -1
