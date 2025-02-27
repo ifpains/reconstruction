@@ -36,7 +36,7 @@
 'cimax'                 : 5000,                    # Upper threshold (keep very high not to kill large signals)
 'justPedestal'          : False,
 'daq'                   : 'midas',                 # DAQ type (btf/h5/midas)
-'Bari'                  : True,              # If the cloud to search is s3 (minio) or Bari
+'Bari'                  : False,              # If the cloud to search is s3 (minio) or Bari
 'tag'                   : 'LNGS',                  # 'LNGS' for LIME LNGS experimental data, 'LNF' for all data taken at LNF, 'MAN' for all data taken at LNGS MANGO, 'MC$path_to_histogram.root' for MC. 
 						   # An example for MC tag could be (see configFile_MC.txt) 'MC$digitized/LIME_08_keV_Sat_NewCode_Iso_RandZ' (do not include the bucket nor the file name) 
 'vignetteCorr'          : True,                    # apply vignetting correction (correction maps in data/ according to the geometry)
