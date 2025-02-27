@@ -110,9 +110,9 @@ def checkfiletmp(run,tier,tmp=None):
        postfix = 'mid.gz'
     return os.path.isfile("%s/%s%05d.%s" % (tmpdir,prefix,run,postfix))
 
-def swift_download_midas_file(run,tmpdir,tag='LNGS'):
+def swift_download_midas_file(run,tmpdir,tag='LNGS',Bari=False):
     print("download or open midas file for run ",int(run))
-    mfile = cy.open_mid(int(run), path=tmpdir, cloud=True, tag=tag, verbose=True)
+    mfile = cy.open_mid(int(run), path=tmpdir, cloud=True, Bari=Bari, tag=tag, verbose=True)
     return mfile
     
 def root_TH2_name(root_file):
