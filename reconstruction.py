@@ -206,7 +206,7 @@ class analysis:
             return len(pics)
             
         run,tmpdir,tag = self.tmpname
-        mf = sw.swift_download_midas_file(run,tmpdir,tag)     #you download the file here so that in multithread does not confuse if it downloaded or not
+        mf = sw.swift_download_midas_file(run,tmpdir,tag,self.options.Bari)     #you download the file here so that in multithread does not confuse if it downloaded or not
         if options.offline==False:
             df = cy.read_cygno_logbook(tag=options.tag,start_run=run-2000,end_run=run+1)
         else:
@@ -258,7 +258,7 @@ class analysis:
             mf = [0] # dummy array to make a common loop with MIDAS case
         else:
             sigrun,tmpdir,tag = self.tmpname
-            mf = sw.swift_download_midas_file(options.pedrun,tmpdir,tag)
+            mf = sw.swift_download_midas_file(options.pedrun,tmpdir,tag,self.options.Bari)
             #mf = self.tmpname
 
         # first calculate the mean 
@@ -404,7 +404,7 @@ class analysis:
 
         elif self.options.rawdata_tier == 'midas':
             run,tmpdir,tag = self.tmpname
-            mf = sw.swift_download_midas_file(run,tmpdir,tag)
+            mf = sw.swift_download_midas_file(run,tmpdir,tag,self.options.Bari)
             
             ## Necessary to read the ODB to retrieve some info necessary for the waveform analysis
             ## Seems to repeat the opening process but *doesn't* slow down the code.
@@ -419,8 +419,11 @@ class analysis:
                 odb = cy.get_bor_odb(mf)
                 header_environment = odb.data['Equipment']['Environment']['Settings']['Names Input']
                 value_variables = odb.data['Equipment']['Environment']['Variables']
+                #per l'ossigeno [Equipment][GasSystem][Settings][Names]
+                #per l'ossigeno [Equipment][GasSystem][Variables]
                 dslow = pd.DataFrame(columns = header_environment)
                 dslow.loc[len(dslow)] = value_variables['Input']
+                #per ò'ossigeno value_variables[Measured]
                 for i in dslow.keys():
                     #try:
                     dslow = utilities.conversion_env_variables(dslow, odb, i, j_env = 0)
@@ -516,6 +519,7 @@ class analysis:
                             camera=True
                     
                     elif name.startswith('INPT') and self.options.environment_variables: # SLOW channels array
+                    #per ossigeno INPT ->MSRD e serve l'eventID 6. Il canale 265esimo
                         if mevent.header.event_id==5:
                             dslow = utilities.read_env_variables(mevent.banks[key], dslow, odb, j_env=j_env)
                             self.autotree.fillEnvVariables(dslow.take([j_env]))

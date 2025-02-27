@@ -2,10 +2,10 @@
 # GIN
 'name'        : 'gin',
 'pixelwidth'  : 0.05,  # mm
-'cameratype'       : 'Fusion',
-'vignette'    : 'data/vignette_runs03930to03932.root',
+'cameratype'       : 'Quest',
+'vignette'    : 'data/vignette_QEHD_085.root',
 'xmin'        : 0,
-'xmax'        : 2304,
+'xmax'        : 4096,
 'ymin'        : 0,
 'ymax'        : 2304,
 }

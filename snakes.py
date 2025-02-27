@@ -223,7 +223,7 @@ class SnakesFactory:
                 
             if self.options.flag_rebin_image == 1:
                 fig = plt.figure(figsize=(self.options.figsizeX, self.options.figsizeY))
-                plt.imshow(self.image,cmap=self.options.cmapcolor, vmin=1, vmax=vmax, origin='upper' )
+                plt.imshow(self.image,cmap=self.options.cmapcolor, vmin=vmin, vmax=vmax, origin='upper' )
                 plt.title("Rebin Image")
                 for ext in ['png']:       #,'pdf'
                     plt.savefig('{pdir}/{name}_{esp}.{ext}'.format(pdir=outname,name=self.name,esp='rebinIma',ext=ext), bbox_inches='tight', pad_inches=0)
