@@ -370,8 +370,11 @@ class analysis:
         pedfile.cd()
         pedmap.Write()
         pedmapS.Write()
-        pedmean1D = ROOT.TH1D('pedmean','pedestal mean',500,97,103)
-        pedrms1D = ROOT.TH1D('pedrms','pedestal RMS',1000,0,10)
+        if self.cg.cameratype == 'Quest':
+            pedmean1D = ROOT.TH1D('pedmean','pedestal mean',500,195,220)
+        else:    
+            pedmean1D = ROOT.TH1D('pedmean','pedestal mean',500,97,103)
+        pedrms1D = ROOT.TH1D('pedrms','pedestal RMS',1000,0,15)
         for ix in range(nx):
             for iy in range(ny):
                pedmean1D.Fill(pedmap.GetBinContent(ix,iy)) 
