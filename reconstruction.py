@@ -876,9 +876,7 @@ if __name__ == '__main__':
         
     try:
         USER = os.environ['USER']
-        flag_env = 0
     except:
-        flag_env = 1
         try:
           USER = os.environ['JUPYTERHUB_USER']
         except:
@@ -954,10 +952,7 @@ if __name__ == '__main__':
                 # retrieve the result. This is crucial, because result() does not exit until the process is completed.
                 future.result()
         print("Now hadding the chunks...")
-        if flag_env == 0:
-            os.system('hadd -k -f {outdir}/{base}.root {outdir}/{base}_chunk*.root'.format(base=base, outdir=options.outdir))
-        else:
-            os.system('/usr/bin/hadd -k -f {outdir}/{base}.root {outdir}/{base}_chunk*.root'.format(base=base, outdir=options.outdir))
+        os.system('hadd -k -f {outdir}/{base}.root {outdir}/{base}_chunk*.root'.format(base=base, outdir=options.outdir))
         os.system('rm {outdir}/{base}_chunk*.root'.format(base=base, outdir=options.outdir))
     else:
         evrange=(-1,firstEvent,lastEvent)
