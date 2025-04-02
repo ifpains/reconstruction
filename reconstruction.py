@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 import os
 cythonized=False
 for fname in os.listdir('.'):
