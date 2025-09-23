@@ -388,6 +388,26 @@ class PMTreco:
         charge = vlt * (4./3.) * (1./50.)
         return charge
 
+    def timeTOADCsample(self, time_interval_ns):
+
+        if self.digitizer == "fast":
+        sampling_period = 1.0  # 1 ns/sample
+    elif self.digitizer == "slow":
+        sampling_period = 2.5 
+
+        return 
+        
+
+    ## Calculate the integral of the waveform around a given peak
+    def getIntegralAroundPeak(self, peak_position, window_size):
+        half_window = window_size / 2
+        begin_index = peak_position-half_window
+        end_index = peak_position+half_window
+        integral = self.getTotalIntegral(begin,end)
+        
+        return self.voltageToCharge(integral)
+        
+
     ## Plot the waveforms with the peaks founds and respective widths. Saves them into a folder called 'waveforms'
     def plot_and_save(self, pdir='./', xlabel='Samples (#)', ylabel='ADC counts (#)', save = True, plot = False):
         import matplotlib.pyplot as plt

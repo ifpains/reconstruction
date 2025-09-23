@@ -14,6 +14,7 @@ class AutoFillTreeProducer:
         self.outTree.branch('Lime_temperature', 'F', title="Lime temperature")
         self.outTree.branch('Atm_temperature', 'F', title="Atmosheric temperature")
         self.outTree.branch('Humidity', 'F', title="Humidity")
+        self.outTree.branch('Oxygen', 'F', title="Oxygen")
         self.outTree.branch('Mixture_Density', 'F', title="Mixture_Density")
         
 
@@ -25,6 +26,7 @@ class AutoFillTreeProducer:
         self.outTree.fillBranch('Lime_temperature', dslow[env_var['lime_temperature']])
         self.outTree.fillBranch('Atm_temperature', dslow[env_var['atm_temperature']])
         self.outTree.fillBranch('Humidity', dslow[env_var['humidity']])
+        self.outTree.fillBranch('Oxygen', dslow[env_var['oxygen']])
         self.outTree.fillBranch('Mixture_Density', dslow[env_var['mixture_density']])
 
     ####################################################     PMT    ################################################################################################################################
@@ -76,6 +78,7 @@ class AutoFillTreeProducer:
         self.outTree.branch('pmt_peak_Height',      'F', lenVar = 'pmt_wf_nPeaks',  title = 'Peaks heights')
         self.outTree.branch('pmt_peak_HalfWidth',   'F', lenVar = 'pmt_wf_nPeaks',  title = 'Peaks half widths')
         self.outTree.branch('pmt_peak_FullWidth',   'F', lenVar = 'pmt_wf_nPeaks',  title = 'Peaks full widths')
+        self.outTree.branch('pmt_peak_Integral',    'F', lenVar = 'pmt_wf_nPeaks',  title = 'Peaks integral')
 
     def fillPMTVariables(self,wf):
 
@@ -108,6 +111,7 @@ class AutoFillTreeProducer:
         self.outTree.fillBranch('pmt_peak_Height',          [ph for ph in wf.getAmplitudes()])
         self.outTree.fillBranch('pmt_peak_HalfWidth',       [phw for phw in wf.getPeakWidths('half')])
         self.outTree.fillBranch('pmt_peak_FullWidth',       [pfw for pfw in wf.getPeakWidths('full')])
+        self.outTree.fillBranch('pmt_peak_Integral',        [wf.getIntegralAroundPeak(pp,) for pp in wf.getPeaksPositions()])
 
 
     ######################### Weighted average waveform #########################
