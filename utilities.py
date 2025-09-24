@@ -378,6 +378,13 @@ class utils:
             except:
                 dslow.loc[j_env,i] = -99
                 #print('Warning: no humidity')
+
+        if i == env_var['oxygen']:
+            try:
+                dslow.loc[j_env,i] = dslow[i][j_env]
+            except:
+                dslow.loc[j_env,i] = -99
+                #print('Warning: no oxygen')
                 
         if i == env_var['atm_temperature']:
             try:
