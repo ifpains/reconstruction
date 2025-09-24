@@ -423,13 +423,20 @@ class analysis:
             if self.options.environment_variables:
         
                 odb = cy.get_bor_odb(mf)
+                
                 header_environment = odb.data['Equipment']['Environment']['Settings']['Names Input']
+                header_gas_system = odb.data['Equipment']['GasSystem']['Settings']['Names']
+                header_oxygen = header_gas_system[265]
+                
                 value_variables = odb.data['Equipment']['Environment']['Variables']
-                #per l'ossigeno [Equipment][GasSystem][Settings][Names]
-                #per l'ossigeno [Equipment][GasSystem][Variables]
+                value_gas_system = odb.data['Equipment']['GasSystem']['Variables']
+                value_oxygen = value_gas_system['Demand'][265]
+                
+                doxygen = pd.DataFrame([value_oxygen], columns=[f"{header_oxygen}"])
                 dslow = pd.DataFrame(columns = header_environment)
                 dslow.loc[len(dslow)] = value_variables['Input']
-                #per ò'ossigeno value_variables[Measured]
+                dslow = pd.merge(dslow,doxygen,left_index=True,right_index=True)
+
                 for i in dslow.keys():
                     #try:
                     dslow = utilities.conversion_env_variables(dslow, odb, i, j_env = 0)
