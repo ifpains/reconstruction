@@ -70,6 +70,6 @@
 'pmt_wf_in_tree'        : False,		## saves full X and Y arrays in tree branches. 
 'pmt_verbose'			: 0,	        ## Choose from 0 to 3. '0' for no output; '3' for full output.	
 
-'include_gem'			: 1,			## Also performs very basic GEM signal analysis
+'include_gem'			: 0,			## Also performs very basic GEM signal analysis
 'board_gem_channels'	: [5,6,7]
 }
