@@ -428,7 +428,7 @@ class utils:
         
         return dslow
     
-    def read_env_variables(self, bank, dslow, odb, j_env=0):
+    def read_env_variables(self, bank, dslow, oxygen_value, odb, j_env=0):
         import midas.file_reader
         from datetime import datetime
         import numpy as np
@@ -438,8 +438,9 @@ class utils:
         import pandas as pd
         
         slow = cy.daq_slow2array(bank)
-        #print(slow)
-        dslow.loc[len(dslow)] = slow
+        row_data = list(slow) + [oxygen_value]
+        # print(slow)
+        dslow.loc[len(dslow)] = row_data
         #print(dslow)
         for i in dslow.keys():
             dslow = self.conversion_env_variables(dslow, odb, i, j_env)           

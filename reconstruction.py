@@ -530,11 +530,14 @@ class analysis:
                         if options.camera_mode:
                             img_fr,_,_ = cy.daq_cam2array(mevent.banks[key])
                             camera=True
+
+                    elif name.startswith('MSRD'): 
+                        if mevent.header.event_id==6:
+                            oxygen_value = cy.daq_slow2array(mevent.banks[key])[265]
                     
                     elif name.startswith('INPT') and self.options.environment_variables: # SLOW channels array
-                    #per ossigeno INPT ->MSRD e serve l'eventID 6. Il canale 265esimo
                         if mevent.header.event_id==5:
-                            dslow = utilities.read_env_variables(mevent.banks[key], dslow, odb, j_env=j_env)
+                            dslow = utilities.read_env_variables(mevent.banks[key], dslow, oxygen_value, odb, j_env=j_env)
                             self.autotree.fillEnvVariables(dslow.take([j_env]))
                             j_env = j_env+1
                             if not self.options.camera_mode:

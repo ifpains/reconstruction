@@ -111,7 +111,6 @@ class AutoFillTreeProducer:
         self.outTree.fillBranch('pmt_peak_Height',          [ph for ph in wf.getAmplitudes()])
         self.outTree.fillBranch('pmt_peak_HalfWidth',       [phw for phw in wf.getPeakWidths('half')])
         self.outTree.fillBranch('pmt_peak_FullWidth',       [pfw for pfw in wf.getPeakWidths('full')])
-        self.outTree.fillBranch('pmt_peak_Integral',        [wf.getIntegralAroundPeak(pp,) for pp in wf.getPeaksPositions()])
 
 
     ######################### Weighted average waveform #########################
