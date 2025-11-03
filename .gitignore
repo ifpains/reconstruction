@@ -24,3 +24,4 @@ build/
 cython_cygno.c
 reco*.txt
 *debug.txt
+configFile_LNGS_low_gain.txt
