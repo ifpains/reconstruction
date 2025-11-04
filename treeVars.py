@@ -78,7 +78,6 @@ class AutoFillTreeProducer:
         self.outTree.branch('pmt_peak_Height',      'F', lenVar = 'pmt_wf_nPeaks',  title = 'Peaks heights')
         self.outTree.branch('pmt_peak_HalfWidth',   'F', lenVar = 'pmt_wf_nPeaks',  title = 'Peaks half widths')
         self.outTree.branch('pmt_peak_FullWidth',   'F', lenVar = 'pmt_wf_nPeaks',  title = 'Peaks full widths')
-        self.outTree.branch('pmt_peak_Integral',    'F', lenVar = 'pmt_wf_nPeaks',  title = 'Peaks integral')
 
     def fillPMTVariables(self,wf):
 
