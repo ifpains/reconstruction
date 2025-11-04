@@ -429,13 +429,7 @@ class utils:
         return dslow
     
     def read_env_variables(self, bank, dslow, oxygen_value, odb, j_env=0):
-        import midas.file_reader
-        from datetime import datetime
-        import numpy as np
-        from matplotlib import pyplot as plt
         import cygno as cy
-        import time
-        import pandas as pd
         
         slow = cy.daq_slow2array(bank)
         row_data = list(slow) + [oxygen_value]
