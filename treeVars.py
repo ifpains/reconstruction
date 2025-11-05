@@ -14,6 +14,7 @@ class AutoFillTreeProducer:
         self.outTree.branch('Lime_temperature', 'F', title="Lime temperature")
         self.outTree.branch('Atm_temperature', 'F', title="Atmosheric temperature")
         self.outTree.branch('Humidity', 'F', title="Humidity")
+        self.outTree.branch('Oxygen', 'F', title="Oxygen")
         self.outTree.branch('Mixture_Density', 'F', title="Mixture_Density")
         
 
@@ -25,6 +26,7 @@ class AutoFillTreeProducer:
         self.outTree.fillBranch('Lime_temperature', dslow[env_var['lime_temperature']])
         self.outTree.fillBranch('Atm_temperature', dslow[env_var['atm_temperature']])
         self.outTree.fillBranch('Humidity', dslow[env_var['humidity']])
+        self.outTree.fillBranch('Oxygen', dslow[env_var['oxygen']])
         self.outTree.fillBranch('Mixture_Density', dslow[env_var['mixture_density']])
 
     ####################################################     PMT    ################################################################################################################################

@@ -386,7 +386,7 @@ class PMTreco:
     ## Converts value (integral tipically) into charge
     def voltageToCharge(self,vlt):
         charge = vlt * (4./3.) * (1./50.)
-        return charge
+        return charge        
 
     ## Plot the waveforms with the peaks founds and respective widths. Saves them into a folder called 'waveforms'
     def plot_and_save(self, pdir='./', xlabel='Samples (#)', ylabel='ADC counts (#)', save = True, plot = False):

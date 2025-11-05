@@ -423,13 +423,20 @@ class analysis:
             if self.options.environment_variables:
         
                 odb = cy.get_bor_odb(mf)
+                
                 header_environment = odb.data['Equipment']['Environment']['Settings']['Names Input']
+                header_gas_system = odb.data['Equipment']['GasSystem']['Settings']['Names']
+                header_oxygen = header_gas_system[265]
+                
                 value_variables = odb.data['Equipment']['Environment']['Variables']
-                #per l'ossigeno [Equipment][GasSystem][Settings][Names]
-                #per l'ossigeno [Equipment][GasSystem][Variables]
+                value_gas_system = odb.data['Equipment']['GasSystem']['Variables']
+                value_oxygen = value_gas_system['Demand'][265]
+                
+                doxygen = pd.DataFrame([value_oxygen], columns=[f"{header_oxygen}"])
                 dslow = pd.DataFrame(columns = header_environment)
                 dslow.loc[len(dslow)] = value_variables['Input']
-                #per ò'ossigeno value_variables[Measured]
+                dslow = pd.merge(dslow,doxygen,left_index=True,right_index=True)
+
                 for i in dslow.keys():
                     #try:
                     dslow = utilities.conversion_env_variables(dslow, odb, i, j_env = 0)
@@ -523,16 +530,28 @@ class analysis:
                         if options.camera_mode:
                             img_fr,_,_ = cy.daq_cam2array(mevent.banks[key])
                             camera=True
-                    
-                    elif name.startswith('INPT') and self.options.environment_variables: # SLOW channels array
-                    #per ossigeno INPT ->MSRD e serve l'eventID 6. Il canale 265esimo
-                        if mevent.header.event_id==5:
-                            dslow = utilities.read_env_variables(mevent.banks[key], dslow, odb, j_env=j_env)
+
+                    elif name.startswith('MSRD') and self.options.environment_variables: 
+                        if mevent.header.event_id == 6:
+                            dslow = utilities.read_env_variables(mevent.banks[key], name, dslow, odb, j_env=j_env)
                             self.autotree.fillEnvVariables(dslow.take([j_env]))
-                            j_env = j_env+1
+                            j_env = j_env + 1
                             if not self.options.camera_mode:
                                 if self.options.jobs != 1:
-                                    if numev>=evrange[1]: self.outTree.fill()
+                                    if numev >= evrange[1]: 
+                                        self.outTree.fill()
+                                else:
+                                    self.outTree.fill()
+                    
+                    elif name.startswith('INPT') and self.options.environment_variables:
+                        if mevent.header.event_id == 5:
+                            dslow = utilities.read_env_variables(mevent.banks[key], name, dslow, odb, j_env=j_env)
+                            self.autotree.fillEnvVariables(dslow.take([j_env]))
+                            j_env = j_env + 1
+                            if not self.options.camera_mode:
+                                if self.options.jobs != 1:
+                                    if numev >= evrange[1]: 
+                                        self.outTree.fill()
                                 else:
                                     self.outTree.fill()
                     

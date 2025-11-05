@@ -111,8 +111,18 @@ def checkfiletmp(run,tier,tmp=None):
     return os.path.isfile("%s/%s%05d.%s" % (tmpdir,prefix,run,postfix))
 
 def swift_download_midas_file(run,tmpdir,tag='LNGS',Bari=False):
+    import subprocess
     print("download or open midas file for run ",int(run))
-    mfile = cy.open_mid(int(run), path=tmpdir, cloud=True, Bari=Bari, tag=tag, verbose=True)
+    filename = "run{0:5d}.mid.gz".format(int(run))
+    if filename not in os.listdir():
+    
+        linkname = "https://s3.cr.cnaf.infn.it:7480/cygno:cygno-data/LNGS/run{0:5d}.mid.gz".format(int(run))
+        result = subprocess.run(["wget", linkname], capture_output=True, text=True)
+        print("STDOUT:", result.stdout)
+        print("STDERR:", result.stderr)
+        print("Exit Code:", result.returncode)
+    #mfile = cy.open_mid(int(run), path=tmpdir, cloud=True, Bari=Bari, tag=tag, verbose=True)
+    mfile = cy.open_mid(int(run), path="./", cloud=True, Bari=False, tag='', verbose=True)
     return mfile
     
 def root_TH2_name(root_file):

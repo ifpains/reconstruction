@@ -1,5 +1,6 @@
 {
 'humidity': 'P1UIn5',
+'oxygen': 'STS_Ana_AT402_VALUE',
 'lime_pressure': 'P0IIn5',
 'atm_pressure': 'P0IIn3',
 'lime_temperature': 'P0IIn0',
