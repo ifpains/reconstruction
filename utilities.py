@@ -428,17 +428,22 @@ class utils:
         
         return dslow
     
-    def read_env_variables(self, bank, dslow, oxygen_value, odb, j_env=0):
+    def read_env_variables(self, bank, bank_name, dslow, odb, j_env=0):
         import cygno as cy
         
         slow = cy.daq_slow2array(bank)
-        row_data = list(slow) + [oxygen_value]
-        # print(slow)
-        dslow.loc[len(dslow)] = row_data
-        #print(dslow)
-        for i in dslow.keys():
-            dslow = self.conversion_env_variables(dslow, odb, i, j_env)           
-        j_env = j_env+1
+
+        if bank_name.startswith('MSRD'):
+            env_values = dslow.iloc[-1, :-1].tolist()
+            row_data = env_values + [slow[265]]
+            dslow.loc[len(dslow)] = row_data
+        
+        elif bank_name.startswith('INPT'):
+            oxygen_value = dslow.iloc[-1, -1]
+            row_data = list(slow) + [oxygen_value]
+            dslow.loc[len(dslow)] = row_data
+            for i in dslow.keys():
+                dslow = self.conversion_env_variables(dslow, odb, i, j_env)           
             
         return dslow
         

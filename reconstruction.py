@@ -532,17 +532,26 @@ class analysis:
                             camera=True
 
                     elif name.startswith('MSRD'): 
-                        if mevent.header.event_id==6:
-                            oxygen_value = cy.daq_slow2array(mevent.banks[key])[265]
-                    
-                    elif name.startswith('INPT') and self.options.environment_variables: # SLOW channels array
-                        if mevent.header.event_id==5:
-                            dslow = utilities.read_env_variables(mevent.banks[key], dslow, oxygen_value, odb, j_env=j_env)
+                        if mevent.header.event_id == 6:
+                            dslow = utilities.read_env_variables(mevent.banks[key], name, dslow, odb, j_env=j_env)
                             self.autotree.fillEnvVariables(dslow.take([j_env]))
-                            j_env = j_env+1
+                            j_env = j_env + 1
                             if not self.options.camera_mode:
                                 if self.options.jobs != 1:
-                                    if numev>=evrange[1]: self.outTree.fill()
+                                    if numev >= evrange[1]: 
+                                        self.outTree.fill()
+                                else:
+                                    self.outTree.fill()
+                    
+                    elif name.startswith('INPT') and self.options.environment_variables:
+                        if mevent.header.event_id == 5:
+                            dslow = utilities.read_env_variables(mevent.banks[key], name, dslow, odb, j_env=j_env)
+                            self.autotree.fillEnvVariables(dslow.take([j_env]))
+                            j_env = j_env + 1
+                            if not self.options.camera_mode:
+                                if self.options.jobs != 1:
+                                    if numev >= evrange[1]: 
+                                        self.outTree.fill()
                                 else:
                                     self.outTree.fill()
                     
