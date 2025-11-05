@@ -531,7 +531,7 @@ class analysis:
                             img_fr,_,_ = cy.daq_cam2array(mevent.banks[key])
                             camera=True
 
-                    elif name.startswith('MSRD'): 
+                    elif name.startswith('MSRD') and self.options.environment_variables: 
                         if mevent.header.event_id == 6:
                             dslow = utilities.read_env_variables(mevent.banks[key], name, dslow, odb, j_env=j_env)
                             self.autotree.fillEnvVariables(dslow.take([j_env]))
