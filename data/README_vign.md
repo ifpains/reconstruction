@@ -6,7 +6,7 @@ The best would be to have one vignette map per configuration. **When a different
 Gold spacers, focus of the sensor should have minor impact, so if a specific map is not available use one in similar conditions (but be careful).< \br>
 The vignette maps are not stored automatically in the data folder of the reconstruction repository to avoid saving unnecessarily heavy files. You can find all the described vignette maps in cygno-analysis/Useful_for_reco/Vignette/ .For example one can dowload with
 
-`wget https://s3.cloud.infn.it/v1/AUTH_2ebf769785574195bde2ff418deac08a/cygno-analysis/Useful_for_reco/Vignette/vignette_QEHD_085.root`
+`wget https://s3.cr.cnaf.infn.it:7480/cygno:cygno-analysis/Useful_for_reco/Vignette/vignette_QEHD_085.root`
 
 In the following, there is a brief description of the vignette maps available.
 
