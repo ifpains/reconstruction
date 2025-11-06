@@ -42,7 +42,7 @@
 'vignetteCorr'          : True,                    # apply vignetting correction (correction maps in data/ according to the geometry)
 'environment_variables' : False,                    # if True the environment variables are added to the Tree
 
-'excImages'             : [], #list(range(5))+[],      # To exlude some images of the analysis. Always exclude the first 5 which are messy (not true anymore)
+'excImages'             : [0], #list(range(5))+[],      # To exlude some images of the analysis. Always exclude the first 5 which are messy (not true anymore)
 'donotremove'           : True,                   # Remove or not the file from the tmp folder
 
 'scfullinfo'            : True,			   # If True some the supercluster pixels info will be saved
