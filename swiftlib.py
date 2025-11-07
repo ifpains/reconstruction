@@ -6,29 +6,12 @@ import cygno as cy
 import os
 
 def swift_root_file(tag, run):    
-    BASE_URL = "https://s3.cloud.infn.it/v1/AUTH_2ebf769785574195bde2ff418deac08a/"
+    BASE_URL = "https://s3.cr.cnaf.infn.it:7480/cygno:"
     if 'MC' in tag:
         tag,path=tag.split('$')
         bucket= 'cygno-sim'
         sel=path
-    if tag=='LNGS':
-        if run>138:
-            bucket='cygno-data'
-            sel=tag
-        else:
-            print("WARNING: Runs prior 138 not present on cloud storage cygno-data/LNGS/")
-            exit()
-    if tag=='LNF':
-        if (run>5000 and run<6633) or (run>10037):
-            bucket='cygno-data'
-            if run>10037:
-               sel=tag
-            else:
-               sel='LAB'
-        else:
-            print("WARNING: Runs Data prior 5000 or in the range [6633-10036] are not present on cloud storage cygno-data/LNF/ or cygno-data/LAB")
-            exit()
-    if tag=='MAN':
+    else:
         bucket='cygno-data'
         sel=tag
     
@@ -110,48 +93,7 @@ def checkfiletmp(run,tier,tmp=None):
        postfix = 'mid.gz'
     return os.path.isfile("%s/%s%05d.%s" % (tmpdir,prefix,run,postfix))
 
-def swift_download_midas_file(run,tmpdir,tag='LNGS',Bari=False):
-    import subprocess
+def swift_download_midas_file(run,tmpdir,tag='LNGS'):
     print("download or open midas file for run ",int(run))
-    filename = "run{0:5d}.mid.gz".format(int(run))
-    if filename not in os.listdir():
-    
-        linkname = "https://s3.cr.cnaf.infn.it:7480/cygno:cygno-data/LNGS/run{0:5d}.mid.gz".format(int(run))
-        result = subprocess.run(["wget", linkname], capture_output=True, text=True)
-        print("STDOUT:", result.stdout)
-        print("STDERR:", result.stderr)
-        print("Exit Code:", result.returncode)
-    #mfile = cy.open_mid(int(run), path=tmpdir, cloud=True, Bari=Bari, tag=tag, verbose=True)
-    mfile = cy.open_mid(int(run), path="./", cloud=True, Bari=False, tag='', verbose=True)
+    mfile = cy.open_mid(int(run), path=tmpdir, cloud=True, tag=tag, verbose=False)
     return mfile
-    
-def root_TH2_name(root_file):
-    pic = []
-    wfm = []
-    for i,e in enumerate(root_file.GetListOfKeys()):
-        che = e.GetName()
-        if ('pic_run' in str(che)):
-            pic.append(che)
-        elif ('wfm_run' in str(che)):
-            wfm.append(che)
-    return pic, wfm
-
-def swift_pedestal_file(run):
-    pedrun = selectPedestal(run)    
-    
-    BASE_URL = "https://s3.cloud.infn.it/v1/AUTH_2ebf769785574195bde2ff418deac08a/cygnus/Pedestals/"
-    file_root = ('pedmap_run%05d_rebin1.root' % pedrun)
-    return BASE_URL+file_root
-
-def selectPedestal(run):
-    
-    f = open('runvspedmap.txt', "r")
-    params = eval(f.read())
-    
-    for k,v in params.items():
-        setattr(options,k,v)
-        
-    options.pedavailable
-    
- 
-    return sel

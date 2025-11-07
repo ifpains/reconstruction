@@ -31,18 +31,17 @@
 
 'offline'               : False,		#if False it reads the logbook from online, if true it reads the runlog_tag_auto.csv locally
 'rebin'                 : 4,
-'nsigma'                : 0.5,
-'min_neighbors_average' : 2.0,                   # cut on the minimum average energy around a pixel (remove isolated macro-pixels)
+'nsigma'                : 1.3,
+'min_neighbors_average' : 0.8,                   # cut on the minimum average energy around a pixel (remove isolated macro-pixels)
 'cimax'                 : 5000,                    # Upper threshold (keep very high not to kill large signals)
 'justPedestal'          : False,
 'daq'                   : 'midas',                 # DAQ type (btf/h5/midas)
-'Bari'                  : True,              # If the cloud to search is s3 (minio) or Bari
 'tag'                   : 'MAN',                  # 'LNGS' for LIME LNGS experimental data, 'LNF' for all data taken at LNF, 'MAN' for all data taken at LNGS MANGO, 'MC$path_to_histogram.root' for MC. 
 						   # An example for MC tag could be (see configFile_MC.txt) 'MC$digitized/LIME_08_keV_Sat_NewCode_Iso_RandZ' (do not include the bucket nor the file name) 
 'vignetteCorr'          : True,                    # apply vignetting correction (correction maps in data/ according to the geometry)
 'environment_variables' : False,                    # if True the environment variables are added to the Tree. Be sure your midas files contain these information
 
-'excImages'             : [], #list(range(5))+[],      # To exlude some images of the analysis. Always exclude the first 5 which are messy (not true anymore)
+'excImages'             : [0], #list(range(5))+[],      # To exlude some images of the analysis. Always exclude the first 5 which are messy (not true anymore)
 'donotremove'           : True,                   # Remove or not the file from the tmp folder
 
 'scfullinfo'            : True,			   # If True some the supercluster pixels info will be saved
@@ -56,7 +55,7 @@
 
 ### PMT waveform reconstruction
 'pmt_mode'              : 0,
-'board_pmt_channels'	: [1],	# Board channels used to save PMT.
+'board_pmt_channels'	: [6],	# Board channels used to save PMT.
 								# NB: This assumes the PMTs are connected to the same channels in both digitizers.
 
 'threshold'             : 0,			
