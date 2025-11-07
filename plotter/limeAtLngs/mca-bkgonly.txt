@@ -1,3 +1,0 @@
-bkg    : merged_bkgruns : 1 ; FillColor=ROOT.kBlue+1, FillStyle=3004, Label="No source" 
-fakes+ : merged_pedruns : 1 ; FillColor=ROOT.kRed+1, Label="Fakes"
-data   : merged_feruns : 1 ; FillColor=ROOT.kRed+1, Label="Source"

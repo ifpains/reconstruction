@@ -108,7 +108,7 @@ class utils:
     def get_git_revision_hash(self):
         return subprocess.check_output(['git', 'rev-parse', 'HEAD'])
 
-    def calcVignettingMap(self,run,pedfile,outfile,maxImages=1000,rebin=12,det='lime',daq='midas'):
+    def calcVignettingMap(self,run,pedfile,outfile,maxImages=1000,rebin=12,det='lime',daq='midas'):                 #Very likely obsolete and not working anymore. Updated version in c++ by Giorgio Dho Buildvign.cxx should be better
 
         ################ GEOMETRY ###
         geometryPSet   = open('modules_config/geometry_{det}.txt'.format(det=det),'r')
@@ -143,11 +143,6 @@ class utils:
         tf_in = sw.swift_read_root_file(infile)
         
         framesize = 216 if det=='lime' else 0
-
-        #this was a special case with 3 pictures with different orientations
-        #files = ["~/Work/data/cygnus/run03930.root","~/Work/data/cygnus/run03931.root","~/Work/data/cygnus/run03932.root"]
-        #for f in files:
-        #tf_in = ROOT.TFile(infile)
         
         # first calculate the mean 
         for i,key in enumerate(tf_in.keys()):
@@ -313,7 +308,7 @@ class utils:
         if not hasattr(options,"pedrun"):
             run = int(options.run)
             if options.offline==False:
-               df = cy.read_cygno_logbook(tag=options.tag,start_run=run-2000,end_run=run+1)
+               df = cy.read_cygno_logbook(tag=options.tag,start_run=run-8000,end_run=run+1)
             else:
                runlog='runlog_%s_auto.csv' % (options.tag)
                df = pd.read_csv('pedestals/%s'%runlog)
@@ -367,9 +362,7 @@ class utils:
             factor_mb = 1 / (1024 * 1024)
         return mem * factor_mb
     
-    def conversion_env_variables(self, dslow, odb, i = 0, j_env = 0):
-        env_var = open('modules_config/env_variables.txt','r')
-        env_var = eval(env_var.read())
+    def conversion_env_variables(self, dslow, odb, env_var, i = 0, j_env = 0):
         
         if i == env_var['humidity']:
             try:
@@ -428,7 +421,7 @@ class utils:
         
         return dslow
     
-    def read_env_variables(self, bank, bank_name, dslow, odb, j_env=0):
+    def read_env_variables(self, bank, bank_name, dslow, odb, env_var, j_env=0):
         import cygno as cy
         
         slow = cy.daq_slow2array(bank)
@@ -443,7 +436,7 @@ class utils:
             row_data = list(slow) + [oxygen_value]
             dslow.loc[len(dslow)] = row_data
             for i in dslow.keys():
-                dslow = self.conversion_env_variables(dslow, odb, i, j_env)           
+                dslow = self.conversion_env_variables(dslow, odb, env_var, i, j_env)           
             
         return dslow
         

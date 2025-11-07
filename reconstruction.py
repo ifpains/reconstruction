@@ -208,7 +208,7 @@ class analysis:
             return len(pics)
             
         run,tmpdir,tag = self.tmpname
-        mf = sw.swift_download_midas_file(run,tmpdir,tag,self.options.Bari)     #you download the file here so that in multithread does not confuse if it downloaded or not
+        mf = sw.swift_download_midas_file(run,tmpdir,tag)     #you download the file here so that in multithread does not confuse if it downloaded or not
         if options.offline==False:
             df = cy.read_cygno_logbook(tag=options.tag,start_run=run-2000,end_run=run+1)
         else:
@@ -260,7 +260,7 @@ class analysis:
             mf = [0] # dummy array to make a common loop with MIDAS case
         else:
             sigrun,tmpdir,tag = self.tmpname
-            mf = sw.swift_download_midas_file(options.pedrun,tmpdir,tag,self.options.Bari)
+            mf = sw.swift_download_midas_file(options.pedrun,tmpdir,tag)
             #mf = self.tmpname
 
         # first calculate the mean 
@@ -398,7 +398,10 @@ class analysis:
         ctools = cameraTools(self.cg)
         print("Reconstructing event range: ",evrange[1],"-",evrange[2])
         self.outputFile.cd()
-        
+
+        flag_oxy=False              #Flag-check to see if oxygen variable exist
+        env_varf = open('modules_config/env_variables.txt','r')
+        env_var = eval(env_varf.read())
         if self.options.rawdata_tier == 'root':
             tf = sw.swift_read_root_file(self.tmpname)
             keys = tf.keys()
@@ -408,9 +411,10 @@ class analysis:
             keys = tf.keys()
             mf = [0] # dummy array to make a common loop with MIDAS case
 
+
         elif self.options.rawdata_tier == 'midas':
             run,tmpdir,tag = self.tmpname
-            mf = sw.swift_download_midas_file(run,tmpdir,tag,self.options.Bari)
+            mf = sw.swift_download_midas_file(run,tmpdir,tag)
             
             ## Necessary to read the ODB to retrieve some info necessary for the waveform analysis
             ## Seems to repeat the opening process but *doesn't* slow down the code.
@@ -427,10 +431,16 @@ class analysis:
                 header_environment = odb.data['Equipment']['Environment']['Settings']['Names Input']
                 header_gas_system = odb.data['Equipment']['GasSystem']['Settings']['Names']
                 header_oxygen = header_gas_system[265]
+                if header_oxygen == env_var['oxygen']: 
+                    flag_oxy=True
+                else:
+                    header_oxygen = env_var['oxygen']
                 
                 value_variables = odb.data['Equipment']['Environment']['Variables']
                 value_gas_system = odb.data['Equipment']['GasSystem']['Variables']
                 value_oxygen = value_gas_system['Demand'][265]
+                if not flag_oxy:
+                    value_oxygen=-99
                 
                 doxygen = pd.DataFrame([value_oxygen], columns=[f"{header_oxygen}"])
                 dslow = pd.DataFrame(columns = header_environment)
@@ -438,10 +448,8 @@ class analysis:
                 dslow = pd.merge(dslow,doxygen,left_index=True,right_index=True)
 
                 for i in dslow.keys():
-                    #try:
-                    dslow = utilities.conversion_env_variables(dslow, odb, i, j_env = 0)
-                    #except:
-                        #print("WARNING: conversion_env_variables failed.")
+                    dslow = utilities.conversion_env_variables(dslow, odb, env_var, i, j_env = 0)
+                   
                 try:
                    self.autotree.fillEnvVariables(dslow.take([0]))
                    if not self.options.camera_mode:
@@ -533,7 +541,9 @@ class analysis:
 
                     elif name.startswith('MSRD') and self.options.environment_variables: 
                         if mevent.header.event_id == 6:
-                            dslow = utilities.read_env_variables(mevent.banks[key], name, dslow, odb, j_env=j_env)
+                            dslow = utilities.read_env_variables(mevent.banks[key], name, dslow, odb, env_var, j_env=j_env)
+                            if not flag_oxy:                            #check if not oxygen      
+                                dslow.iloc[-1, -1]=-99
                             self.autotree.fillEnvVariables(dslow.take([j_env]))
                             j_env = j_env + 1
                             if not self.options.camera_mode:
@@ -545,7 +555,7 @@ class analysis:
                     
                     elif name.startswith('INPT') and self.options.environment_variables:
                         if mevent.header.event_id == 5:
-                            dslow = utilities.read_env_variables(mevent.banks[key], name, dslow, odb, j_env=j_env)
+                            dslow = utilities.read_env_variables(mevent.banks[key], name, dslow, odb, env_var, j_env=j_env)
                             self.autotree.fillEnvVariables(dslow.take([j_env]))
                             j_env = j_env + 1
                             if not self.options.camera_mode:
