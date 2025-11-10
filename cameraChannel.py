@@ -96,6 +96,9 @@ class cameraTools:
                 if self.geometry.cameratype != maptocameraParams[(self.geometry.vignette).split('/')[1]]: #check that the vignetting map is made with the camera you set for the analysis
                        print ('ERROR! The camera and the vignetting map do not match. Check what you wrote in the configFile or in modules_config/geometry_xxx.txt.\nYou can also check the vignetting readme in data folder.\nAnalysis FAILED')
                        sys.exit()
+
+                from cygno import cmd
+                cmd.cache_file('https://s3.cr.cnaf.infn.it:7480/cygno:cygno-analysis/Useful_for_reco/Vignette/'+(self.geometry.vignette).split('/')[1],'data/')
                 tf = uproot.open(self.geometry.vignette)
                 namehmap = 'normmap'
                 
