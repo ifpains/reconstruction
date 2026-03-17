@@ -157,8 +157,6 @@ class analysis:
             self.outTree.branch("eventnumber","I")
             self.outTree.branch("particle_type","I")
             self.outTree.branch("energy","F")
-            self.outTree.branch("ioniz_energy","F")
-            self.outTree.branch("drift","F")
             self.outTree.branch("phi_initial","F")
             self.outTree.branch("theta_initial","F")
             self.outTree.branch("MC_x_vertex","F")
@@ -618,23 +616,33 @@ class analysis:
                             continue
 
                         if self.options.save_MC_data:
-                            mc_tree = tf.Get('event_info/info_tree')
-                            mc_tree.GetEntry(event)
-                            self.outTree.fillBranch("eventnumber",mc_tree.eventnumber)
-                            self.outTree.fillBranch("particle_type",mc_tree.particle_type)
-                            self.outTree.fillBranch("energy",mc_tree.energy_ini)
-                            self.outTree.fillBranch("ioniz_energy",mc_tree.ioniz_energy)
-                            self.outTree.fillBranch("drift",mc_tree.drift)
-                            self.outTree.fillBranch("phi_initial",mc_tree.phi_ini)
-                            self.outTree.fillBranch("theta_initial",mc_tree.theta_ini)
-                            self.outTree.fillBranch("MC_x_vertex",mc_tree.x_vertex)
-                            self.outTree.fillBranch("MC_y_vertex",mc_tree.y_vertex)
-                            self.outTree.fillBranch("MC_z_vertex",mc_tree.z_vertex)
-                            self.outTree.fillBranch("MC_x_vertex_end",mc_tree.x_vertex_end)
-                            self.outTree.fillBranch("MC_y_vertex_end",mc_tree.y_vertex_end)
-                            self.outTree.fillBranch("MC_z_vertex_end",mc_tree.z_vertex_end)
-                            self.outTree.fillBranch("MC_2D_pathlength",mc_tree.proj_track_2D)
-                            self.outTree.fillBranch("MC_3D_pathlength",mc_tree.track_length_3D)
+                            mc_variables = [
+                                "eventnumber", "particle_type", "energy", "phi", "theta",
+                                "x_vertex", "y_vertex", "z_vertex",
+                                "x_vertex_end", "y_vertex_end", "z_vertex_end",
+                                "proj_track_2D", "track_length_3D"
+                            ]
+                            
+                            branch_map = {
+                                "eventnumber":      "eventnumber",
+                                "particle_type":    "particle_type",
+                                "energy":           "energy",
+                                "phi_initial":      "phi",
+                                "theta_initial":    "theta",
+                                "MC_x_vertex":      "x_vertex",
+                                "MC_y_vertex":      "y_vertex",
+                                "MC_z_vertex":      "z_vertex",
+                                "MC_x_vertex_end":  "x_vertex_end",
+                                "MC_y_vertex_end":  "y_vertex_end",
+                                "MC_z_vertex_end":  "z_vertex_end",
+                                "MC_2D_pathlength": "proj_track_2D",
+                                "MC_3D_pathlength": "track_length_3D",
+                            }
+                        
+                            event_row = tf['event_info'].arrays(mc_variables, cut=f"eventnumber == {event}")
+                        
+                            for branch_name, field_name in branch_map.items():
+                                self.outTree.fillBranch(branch_name, event_row[field_name][0])
          
                         # Upper Threshold full image
                         img_cimax = np.where(img_fr < self.options.cimax, img_fr, 0)

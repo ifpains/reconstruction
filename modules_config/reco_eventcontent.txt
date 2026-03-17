@@ -6,6 +6,6 @@
                            'min_integral' : 850 # corresponding to about 0.5 keV with the Run3 typical scale
                            },
 
-'save_MC_data'          : False,			   # If True save the MC informations
+'save_MC_data'          : True,			   # If True save the MC informations
 
 }
