@@ -458,6 +458,33 @@ class analysis:
 
                 j_env = 1
 
+        if self.options.save_MC_data:
+            mc_variables = [
+                "eventnumber", "particle_type", "energy", "phi", "theta",
+                "x_vertex", "y_vertex", "z_vertex",
+                "x_vertex_end", "y_vertex_end", "z_vertex_end",
+                "proj_track_2D", "track_length_3D"
+            ]
+            mc_table = tf['event_info'].arrays(mc_variables)
+ 
+            branch_map = {
+                "eventnumber":      "eventnumber",
+                "particle_type":    "particle_type",
+                "energy":           "energy",
+                "phi_initial":      "phi",
+                "theta_initial":    "theta",
+                "MC_x_vertex":      "x_vertex",
+                "MC_y_vertex":      "y_vertex",
+                "MC_z_vertex":      "z_vertex",
+                "MC_x_vertex_end":  "x_vertex_end",
+                "MC_y_vertex_end":  "y_vertex_end",
+                "MC_z_vertex_end":  "z_vertex_end",
+                "MC_2D_pathlength": "proj_track_2D",
+                "MC_3D_pathlength": "track_length_3D",
+            }
+
+        cam_img_count = evrange[1] if evrange[1] >= 0 else 0
+
         numev = 0
         event=0
         camera_read = False         #only useful for midas read 
@@ -613,36 +640,17 @@ class analysis:
                         testspark=2*100*self.cg.npixx*self.cg.npixy+9000000		
                         if np.sum(img_fr)>testspark:
                             print("Run ",run,"- Event ",event," has spark, will not be analyzed!")
+                            cam_img_count += 1
                             continue
 
                         if self.options.save_MC_data:
-                            mc_variables = [
-                                "eventnumber", "particle_type", "energy", "phi", "theta",
-                                "x_vertex", "y_vertex", "z_vertex",
-                                "x_vertex_end", "y_vertex_end", "z_vertex_end",
-                                "proj_track_2D", "track_length_3D"
-                            ]
-                            
-                            branch_map = {
-                                "eventnumber":      "eventnumber",
-                                "particle_type":    "particle_type",
-                                "energy":           "energy",
-                                "phi_initial":      "phi",
-                                "theta_initial":    "theta",
-                                "MC_x_vertex":      "x_vertex",
-                                "MC_y_vertex":      "y_vertex",
-                                "MC_z_vertex":      "z_vertex",
-                                "MC_x_vertex_end":  "x_vertex_end",
-                                "MC_y_vertex_end":  "y_vertex_end",
-                                "MC_z_vertex_end":  "z_vertex_end",
-                                "MC_2D_pathlength": "proj_track_2D",
-                                "MC_3D_pathlength": "track_length_3D",
-                            }
-                        
-                            event_row = tf['event_info'].arrays(mc_variables, cut=f"eventnumber == {event}")
-                        
-                            for branch_name, field_name in branch_map.items():
-                                self.outTree.fillBranch(branch_name, event_row[field_name][0])
+                            if cam_img_count >= len(mc_table['eventnumber']):
+                                print(f"WARNING: camera image index {cam_img_count} exceeds "
+                                      f"MC table length ({len(mc_table['eventnumber'])}). "
+                                      f"Skipping MC fill.")
+                            else:
+                                for branch_name, field_name in branch_map.items():
+                                    self.outTree.fillBranch(branch_name, mc_table[field_name][cam_img_count])
          
                         # Upper Threshold full image
                         img_cimax = np.where(img_fr < self.options.cimax, img_fr, 0)
@@ -697,6 +705,7 @@ class analysis:
                             print()
                         del img_fr_sub,img_fr_satcor,img_fr_zs,img_fr_zs_acc,img_rb_zs
                         self.outTree.fill()
+                        cam_img_count += 1
                         del img_fr
                         
          
@@ -925,7 +934,25 @@ if __name__ == '__main__':
     tmpdir = '/tmp'
     os.system('mkdir -p {tmpdir}/{user}'.format(tmpdir=tmpdir,user=USER))
     tmpdir = '{tmpdir}/{user}/'.format(tmpdir=tmpdir,user=USER) if not options.tmpdir else options.tmpdir+"/"
-    if sw.checkfiletmp(int(options.run),options.rawdata_tier,tmpdir):
+    
+    if 'MC' in options.tag:
+        if options.rawdata_tier=='root':
+            prefix = 'histograms_Run'
+            postfix = 'root'
+        elif options.rawdata_tier=='h5':
+            prefix = 'histograms_Run'
+            postfix = 'h5'
+        else:
+            prefix = 'run'
+            postfix = 'mid.gz'
+    
+        options.tmpname = "%s/%s%05d.%s" % (tmpdir,prefix,int(options.run),postfix)
+    
+        if not os.path.exists(options.tmpname):
+            print(f"ERROR: MC file not found: {options.tmpname}")
+            sys.exit(1)
+    
+    elif sw.checkfiletmp(int(options.run),options.rawdata_tier,tmpdir):
         if options.rawdata_tier=='root':
             prefix = 'histograms_Run'
             postfix = 'root'
@@ -936,6 +963,7 @@ if __name__ == '__main__':
             prefix = 'run'
             postfix = 'mid.gz'
         options.tmpname = "%s/%s%05d.%s" % (tmpdir,prefix,int(options.run),postfix)
+    
     else:
         if options.rawdata_tier == 'root':
             file_url = sw.swift_root_file(options.tag, int(options.run))
