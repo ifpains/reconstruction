@@ -466,6 +466,7 @@ class analysis:
                 "proj_track_2D", "track_length_3D"
             ]
             mc_table = tf['event_info'].arrays(mc_variables)
+            print(mc_table)
  
             branch_map = {
                 "eventnumber":      "eventnumber",
@@ -482,8 +483,6 @@ class analysis:
                 "MC_2D_pathlength": "proj_track_2D",
                 "MC_3D_pathlength": "track_length_3D",
             }
-
-        cam_img_count = evrange[1] if evrange[1] >= 0 else 0
 
         numev = 0
         event=0
@@ -640,17 +639,17 @@ class analysis:
                         testspark=2*100*self.cg.npixx*self.cg.npixy+9000000		
                         if np.sum(img_fr)>testspark:
                             print("Run ",run,"- Event ",event," has spark, will not be analyzed!")
-                            cam_img_count += 1
                             continue
 
                         if self.options.save_MC_data:
-                            if cam_img_count >= len(mc_table['eventnumber']):
-                                print(f"WARNING: camera image index {cam_img_count} exceeds "
+                            print(f'Analyzing event {event}')
+                            if event >= len(mc_table['eventnumber']):
+                                print(f"WARNING: camera image index {event} exceeds "
                                       f"MC table length ({len(mc_table['eventnumber'])}). "
                                       f"Skipping MC fill.")
                             else:
                                 for branch_name, field_name in branch_map.items():
-                                    self.outTree.fillBranch(branch_name, mc_table[field_name][cam_img_count])
+                                    self.outTree.fillBranch(branch_name, mc_table[event][field_name])
          
                         # Upper Threshold full image
                         img_cimax = np.where(img_fr < self.options.cimax, img_fr, 0)
@@ -705,7 +704,6 @@ class analysis:
                             print()
                         del img_fr_sub,img_fr_satcor,img_fr_zs,img_fr_zs_acc,img_rb_zs
                         self.outTree.fill()
-                        cam_img_count += 1
                         del img_fr
                         
          
