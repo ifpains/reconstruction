@@ -1,4 +1,4 @@
-# analysis code to reconstruct and analyze track/clusters from CYGNUS camera
+# Analysis code to reconstruct and analyze track/clusters from CYGNUS camera
 
 ## Checkout instructions:
 git@github.com:CYGNUS-RD/analysis.git
