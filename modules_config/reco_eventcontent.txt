@@ -6,4 +6,5 @@
                            'min_integral' : 850 # corresponding to about 0.5 keV with the Run3 typical scale
                            }
 
+
 }
