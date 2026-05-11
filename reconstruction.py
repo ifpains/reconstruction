@@ -932,25 +932,7 @@ if __name__ == '__main__':
     tmpdir = '/tmp'
     os.system('mkdir -p {tmpdir}/{user}'.format(tmpdir=tmpdir,user=USER))
     tmpdir = '{tmpdir}/{user}/'.format(tmpdir=tmpdir,user=USER) if not options.tmpdir else options.tmpdir+"/"
-    
-    if 'MC' in options.tag:
-        if options.rawdata_tier=='root':
-            prefix = 'histograms_Run'
-            postfix = 'root'
-        elif options.rawdata_tier=='h5':
-            prefix = 'histograms_Run'
-            postfix = 'h5'
-        else:
-            prefix = 'run'
-            postfix = 'mid.gz'
-    
-        options.tmpname = "%s/%s%05d.%s" % (tmpdir,prefix,int(options.run),postfix)
-    
-        if not os.path.exists(options.tmpname):
-            print(f"ERROR: MC file not found: {options.tmpname}")
-            sys.exit(1)
-    
-    elif sw.checkfiletmp(int(options.run),options.rawdata_tier,tmpdir):
+    if sw.checkfiletmp(int(options.run),options.rawdata_tier,tmpdir):
         if options.rawdata_tier=='root':
             prefix = 'histograms_Run'
             postfix = 'root'
