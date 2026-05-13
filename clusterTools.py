@@ -87,6 +87,11 @@ class Cluster:
             return len(self.hits_fr_zs)
         else: return 0
 
+    def sizeActive_highThr(self):
+        if hasattr(self,'hits_fr'):
+            return len(self.hits_fr[self.hits_fr[:,2]>10])
+        else: return 0
+
     def iterations(self):
         if hasattr(self,'iteration'):
             return self.iteration
